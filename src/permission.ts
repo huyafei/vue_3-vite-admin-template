@@ -1,21 +1,17 @@
 import router from './router'
 import { useAppStoreWithOut } from '@/store/modules/app'
-import { useCache } from '@/hooks/web/useCache'
+import { useStorage } from '@/hooks/web/useStorage'
 import type { RouteRecordRaw } from 'vue-router'
 import { useTitle } from '@/hooks/web/useTitle'
 import { useNProgress } from '@/hooks/web/useNProgress'
 import { usePermissionStoreWithOut } from '@/store/modules/permission'
-import { useDictStoreWithOut } from '@/store/modules/dict'
 import { usePageLoading } from '@/hooks/web/usePageLoading'
-import { getDictApi } from '@/api/common'
 
 const permissionStore = usePermissionStoreWithOut()
 
 const appStore = useAppStoreWithOut()
 
-const dictStore = useDictStoreWithOut()
-
-const { wsCache } = useCache()
+const { getStorage } = useStorage()
 
 const { start, done } = useNProgress()
 
@@ -26,7 +22,7 @@ const whiteList = ['/login'] // 不重定向白名单
 router.beforeEach(async (to, from, next) => {
   start()
   loadStart()
-  if (wsCache.get(appStore.getUserInfo)) {
+  if (getStorage(appStore.getUserInfo)) {
     if (to.path === '/login') {
       next({ path: '/' })
     } else {
@@ -36,16 +32,15 @@ router.beforeEach(async (to, from, next) => {
       }
 
       // 开发者可根据实际情况进行修改
-      const roleRouters = wsCache.get('roleRouters') || []
-      const userInfo = wsCache.get(appStore.getUserInfo)
-      console.log('roleRouters', roleRouters)
+      const roleRouters = getStorage('roleRouters') || []
+
       // 是否使用动态路由
       if (appStore.getDynamicRouter) {
-        userInfo.role === 'admin'
-          ? await permissionStore.generateRoutes('admin', roleRouters as AppCustomRouteRecordRaw[])
-          : await permissionStore.generateRoutes('test', roleRouters as string[])
+        appStore.serverDynamicRouter
+          ? await permissionStore.generateRoutes('server', roleRouters as AppCustomRouteRecordRaw[])
+          : await permissionStore.generateRoutes('frontEnd', roleRouters as string[])
       } else {
-        await permissionStore.generateRoutes('none')
+        await permissionStore.generateRoutes('static')
       }
 
       permissionStore.getAddRouters.forEach((route) => {

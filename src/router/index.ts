@@ -5,42 +5,12 @@ import { Layout, getParentLayout } from '@/utils/routerHelper'
 import { useI18n } from '@/hooks/web/useI18n'
 
 const { t } = useI18n()
-/**
- * redirect: noredirect        当设置 noredirect 的时候该路由在面包屑导航中不可被点击
- * name:'router-name'          设定路由的名字，一定要填写不然使用<keep-alive>时会出现各种问题
- * meta : {
-    hidden: true              当设置 true 的时候该路由不会再侧边栏出现 如404，login等页面(默认 false)
 
-    alwaysShow: true          当你一个路由下面的 children 声明的路由大于1个时，自动会变成嵌套的模式，
-                              只有一个时，会将那个子路由当做根路由显示在侧边栏，
-                              若你想不管路由下面的 children 声明的个数都显示你的根路由，
-                              你可以设置 alwaysShow: true，这样它就会忽略之前定义的规则，
-                              一直显示根路由(默认 false)
-
-    title: 'title'            设置该路由在侧边栏和面包屑中展示的名字
-
-    icon: 'svg-name'          设置该路由的图标
-
-    noCache: true             如果设置为true，则不会被 <keep-alive> 缓存(默认 false)
-
-    breadcrumb: false         如果设置为false，则不会在breadcrumb面包屑中显示(默认 true)
-
-    affix: true               如果设置为true，则会一直固定在tag项中(默认 false)
-
-    noTagsView: true          如果设置为true，则不会出现在tag中(默认 false)
-
-    activeMenu: '/dashboard'  显示高亮的路由路径
-
-    followAuth: '/dashboard'  跟随哪个路由进行权限过滤
-
-    canTo: true               设置为true即使hidden为true，也依然可以进行路由跳转(默认 false)
-  }
- **/
 export const constantRouterMap: AppRouteRecordRaw[] = [
   {
     path: '/',
     component: Layout,
-    redirect: '/dashboard/analysis',
+    redirect: '/dashboard/index',
     name: 'Root',
     meta: {
       hidden: true
@@ -82,26 +52,6 @@ export const constantRouterMap: AppRouteRecordRaw[] = [
       title: '404',
       noTagsView: true
     }
-  },
-  {
-    path: '/403',
-    component: () => import('@/views/Error/403.vue'),
-    name: 'NoAuth',
-    meta: {
-      hidden: true,
-      title: '403',
-      noTagsView: true
-    }
-  },
-  {
-    path: '/500',
-    component: () => import('@/views/Error/500.vue'),
-    name: 'NoServer',
-    meta: {
-      hidden: true,
-      title: '500',
-      noTagsView: true
-    }
   }
 ]
 
@@ -109,20 +59,18 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
   {
     path: '/dashboard',
     component: Layout,
-    redirect: '/dashboard/analysis',
     name: 'Dashboard',
     meta: {},
     children: [
       {
-        path: 'analysis',
-        component: () => import('@/views/Dashboard/Analysis.vue'),
-        name: 'Analysis',
+        path: 'index',
+        component: () => import('@/views/Dashboard/index.vue'),
+        name: 'DashboardIndex',
         meta: {
+          title: t('router.dashboard'),
           icon: 'ant-design:dashboard-filled',
-          title: t('router.analysis'),
           noCache: true,
-          affix: true,
-          canTo: true
+          affix: true
         }
       }
     ]
@@ -143,6 +91,7 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
       }
     ]
   },
+
   {
     path: '/level',
     component: Layout,
@@ -203,61 +152,83 @@ export const asyncRouterMap: AppRouteRecordRaw[] = [
     ]
   },
   {
-    path: '/example',
+    path: '/error',
     component: Layout,
-    redirect: '/example/example-page',
-    name: 'Example',
+    redirect: '/error/404',
+    name: 'Error',
     meta: {
-      title: t('router.example'),
-      icon: 'ep:management',
+      title: t('router.errorPage'),
+      icon: 'ci:error',
       alwaysShow: true
     },
     children: [
       {
-        path: 'example-page',
-        component: () => import('@/views/Example/Page/ExamplePage.vue'),
-        name: 'ExamplePage',
+        path: '404-demo',
+        component: () => import('@/views/Error/404.vue'),
+        name: '404Demo',
         meta: {
-          title: t('router.examplePage')
+          title: '404'
         }
       },
       {
-        path: 'example-add',
-        component: () => import('@/views/Example/Page/ExampleAdd.vue'),
-        name: 'ExampleAdd',
+        path: '403-demo',
+        component: () => import('@/views/Error/403.vue'),
+        name: '403Demo',
         meta: {
-          title: t('router.exampleAdd'),
-          noTagsView: true,
-          noCache: true,
-          hidden: true,
-          canTo: true,
-          activeMenu: '/example/example-page'
+          title: '403'
         }
       },
       {
-        path: 'example-edit',
-        component: () => import('@/views/Example/Page/ExampleEdit.vue'),
-        name: 'ExampleEdit',
+        path: '500-demo',
+        component: () => import('@/views/Error/500.vue'),
+        name: '500Demo',
         meta: {
-          title: t('router.exampleEdit'),
-          noTagsView: true,
-          noCache: true,
-          hidden: true,
-          canTo: true,
-          activeMenu: '/example/example-page'
+          title: '500'
+        }
+      }
+    ]
+  },
+  {
+    path: '/authorization',
+    component: Layout,
+    redirect: '/authorization/user',
+    name: 'Authorization',
+    meta: {
+      title: t('router.authorization'),
+      icon: 'eos-icons:role-binding',
+      alwaysShow: true
+    },
+    children: [
+      {
+        path: 'department',
+        component: () => import('@/views/Authorization/Department/Department.vue'),
+        name: 'Department',
+        meta: {
+          title: t('router.department')
         }
       },
       {
-        path: 'example-detail',
-        component: () => import('@/views/Example/Page/ExampleDetail.vue'),
-        name: 'ExampleDetail',
+        path: 'user',
+        component: () => import('@/views/Authorization/User/User.vue'),
+        name: 'User',
         meta: {
-          title: t('router.exampleDetail'),
-          noTagsView: true,
-          noCache: true,
-          hidden: true,
-          canTo: true,
-          activeMenu: '/example/example-page'
+          title: t('router.user')
+        }
+      },
+      {
+        path: 'menu',
+        component: () => import('@/views/Authorization/Menu/Menu.vue'),
+        name: 'Menu',
+        meta: {
+          title: t('router.menuManagement')
+        }
+      },
+      {
+        path: 'role',
+        component: () => import('@/views/Authorization/Role/Role.vue'),
+        name: 'Role',
+        meta: {
+          title: t('router.role')
         }
       }
     ]
@@ -272,7 +243,7 @@ const router = createRouter({
 })
 
 export const resetRouter = (): void => {
-  const resetWhiteNameList = ['Redirect', 'Login', 'NoFind', 'NoAuth', 'NoServe', 'Root']
+  const resetWhiteNameList = ['Redirect', 'Login', 'NoFind', 'Root']
   router.getRoutes().forEach((route) => {
     const { name } = route
     if (name && !resetWhiteNameList.includes(name as string)) {
